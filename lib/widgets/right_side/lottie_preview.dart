@@ -135,13 +135,16 @@ class _LottiePreviewState extends State<LottiePreview> with SingleTickerProvider
                   _controller.reset();
                 }
                 _controller.repeat();
+                _updatePlayState();
               },
               onPause: () {
                 _controller.stop();
+                _updatePlayState();
               },
               onSeek: (value) {
                 _controller.stop();
                 _controller.value = value.clamp(0.0, 1.0);
+                _updatePlayState();
               },
             );
           });
@@ -235,4 +238,3 @@ class _LottiePreviewState extends State<LottiePreview> with SingleTickerProvider
     );
   }
 }
-
