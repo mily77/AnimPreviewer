@@ -40,9 +40,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-    <string>SVGA Previewer</string>
+    <string>Anim Previewer</string>
     <key>CFBundleDisplayName</key>
-    <string>SVGA Previewer</string>
+    <string>Anim Previewer</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

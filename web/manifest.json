@@ -1,11 +1,11 @@
 {
-    "name": "svga_previewer",
-    "short_name": "svga_previewer",
+    "name": "Anim Previewer",
+    "short_name": "Anim Previewer",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Preview SVGA and Lottie animations from local files or network downloads.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

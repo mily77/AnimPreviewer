@@ -1,17 +1,18 @@
-# SVGA Previewer
+# Anim Previewer
 
-![icon](https://github.com/Rogue24/JPCover/raw/master/svga_previewer/icon.png) 一款可快速预览**SVGA**的桌面小工具。🌟目前已上架**App Store**，需要的话可[前往下载](https://apps.apple.com/cn/app/svga-previewer/id6742708146?mt=12)~
+![icon](https://github.com/Rogue24/JPCover/raw/master/svga_previewer/icon.png) 一款可快速预览 **SVGA** 与 **Lottie** 动效的桌面小工具，支持本地打开与网络下载预览。🌟目前已上架 **App Store**，需要的话可[前往下载](https://apps.apple.com/cn/app/svga-previewer/id6742708146?mt=12)~
 
 ![example](https://github.com/Rogue24/JPCover/raw/master/svga_previewer/example.gif)
 
 使用`Flutter`+`Cursor`开发，主要支持MacOS平台。
 
     Feature:
-        ✅ 可预览SVGA动画及其内置图片；
-        ✅ 可查看SVGA动画信息（帧率、时长、内存、分辨率）；
+        ✅ 可预览SVGA、Lottie动画及其内置图片；
+        ✅ 可查看动画信息（帧率、时长、内存、分辨率）；
         ✅ 支持动画进度的控制；
         ✅ 支持背景、边框、排版模式等不同UI选项的切换；
-        ✅ 支持双击、拖拽、选择SVGA文件的方式以直接打开进行预览。
+        ✅ 支持双击、拖拽、选择本地文件的方式直接打开预览；
+        ✅ 支持网络下载后直接预览动效文件。
 
 ![main](https://github.com/Rogue24/JPCover/raw/master/svga_previewer/main.png)
 
