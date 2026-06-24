@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           children: [
             // 左侧帧列表
             Container(
-              width: 200,
+              width: 228,
               decoration: BoxDecoration(
                 border: Border(
                   right: BorderSide(

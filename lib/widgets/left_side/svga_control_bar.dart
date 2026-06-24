@@ -19,7 +19,7 @@ class SVGAControlBar extends StatelessWidget {
     final colors = context.appThemeColors;
 
     return Container(
-      padding: const EdgeInsets.only(top: 10, bottom: 2),
+      padding: const EdgeInsets.only(top: 6, bottom: 0),
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
         border: Border(
@@ -50,15 +50,15 @@ class SVGAControlBar extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
 
             Padding(
-              padding: const EdgeInsets.only(left: 3, right: 3),
+              padding: const EdgeInsets.only(left: 4, right: 4),
               child: _buildProgressSlider(viewModel),
             ),
 
             Padding(
-              padding: const EdgeInsets.only(left: 8),
+              padding: const EdgeInsets.only(left: 8, right: 2, top: 1),
               child: Row(
                 children: [
                   const Text('允许绘制溢出:', style: TextStyle(fontSize: 12)),

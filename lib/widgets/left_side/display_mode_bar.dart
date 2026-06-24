@@ -15,7 +15,7 @@ class DisplayModeBar extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
         border: Border(
@@ -29,11 +29,11 @@ class DisplayModeBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('排版模式:', style: TextStyle(fontSize: 12)),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               _ModeButton(
                 mode: DisplayMode.showAll, 
                 isSelected: viewModel.mode == DisplayMode.showAll, 
@@ -50,7 +50,7 @@ class DisplayModeBar extends StatelessWidget {
                   // }
                 },
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               _ModeButton(
                 mode: DisplayMode.showTop, 
                 isSelected: viewModel.mode == DisplayMode.showTop, 
@@ -67,7 +67,7 @@ class DisplayModeBar extends StatelessWidget {
                   // }
                 },
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               _ModeButton(
                 mode: DisplayMode.showBottom, 
                 isSelected: viewModel.mode == DisplayMode.showBottom, 
@@ -120,20 +120,20 @@ class _ModeButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 26,
-        height: 26,
+        width: 24,
+        height: 24,
         decoration: BoxDecoration(
           border: Border.all(
             color: color,  
             width: 1.5,           
           ),
-          borderRadius: BorderRadius.circular(13),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
           child: Icon(
             icon,         
             color: color,
-            size: 15,
+            size: 14,
           ),
         ),
       ),

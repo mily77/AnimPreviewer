@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:svga_previewer/models/animation_type.dart';
+import 'package:svga_previewer/theme/app_theme.dart';
 import 'package:svga_previewer/view_models/animation_view_model.dart';
 import 'package:svga_previewer/widgets/right_side/svga_preview.dart';
 import 'package:svga_previewer/widgets/right_side/lottie_preview.dart';
@@ -59,18 +60,20 @@ class AnimationPreview extends StatelessWidget {
   }
   
   Widget _buildPlaceholder(BuildContext context, AnimationViewModel viewModel) {
-    return Container(
-      decoration: BoxDecoration(
-        color: viewModel.previewBackgroundColor,
-        border: Border.all(
-          color: Theme.of(context).dividerColor,
-          width: 1,
+    final theme = Theme.of(context);
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 260),
+        child: Text(
+          '拖放动画文件到这里\n或点击右下角打开',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
+            height: 1.55,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
         ),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: const Padding(
-        padding: EdgeInsets.all(16),
-        child: Text('无预览'),
       ),
     );
   }

@@ -10,7 +10,6 @@ import 'package:svga_previewer/widgets/left_side/svga_control_bar.dart';
 import 'package:svga_previewer/widgets/left_side/theme_mode_bar.dart';
 import 'package:svga_previewer/widgets/left_side/toggle_border_bar.dart';
 import 'package:svgaplayer_flutter/player.dart';
-import 'package:flutter/cupertino.dart';
 
 class LeftSideScreen extends StatelessWidget {
   final SVGAAnimationController controller;
@@ -32,10 +31,13 @@ class LeftSideScreen extends StatelessWidget {
     List<Widget> list = [
       // 动画图片列表
       Expanded(
-        child: ClipRect(
-          child: viewModel.frames.isEmpty
-            ? _buildPlaceholder(viewModel)
-            : FramesList(viewModel: viewModel,),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+          child: ClipRect(
+            child: viewModel.frames.isEmpty
+              ? _buildPlaceholder(viewModel)
+              : FramesList(viewModel: viewModel,),
+          ),
         ),
       ),
     ]; 
@@ -52,24 +54,55 @@ class LeftSideScreen extends StatelessWidget {
     // 排版选项栏
     list.add(DisplayModeBar(viewModel: viewModel, controller: controller));
     // 底部间距
-    list.add(const SizedBox(height: 4));
+    list.add(const SizedBox(height: 2));
     return list;
   }
 
   Widget _buildPlaceholder(AnimationViewModel viewModel) {
+    final panelColor = Colors.white.withOpacity(0.04);
+    final borderColor = Colors.white.withOpacity(0.08);
+
     // 判断是否有加载的动画文件
     final hasAnimationFile = viewModel.svgaFile != null || viewModel.lottieFile != null;
     
     if (!hasAnimationFile) {
       return const Center(
-        child: Text('拖放SVGA/Lottie/ZIP文件到这里\n或点击右下角按钮打开文件'),
+        child: Text(
+          '图片列表',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 13,
+            height: 1.4,
+          ),
+        ),
       );
     } else {
       // 根据动画类型显示不同的提示
       final animationType = viewModel.animationType;
       final fileType = animationType == AnimationType.lottie ? 'Lottie' : 'SVGA';
       return Center(
-        child: Text('该$fileType文件并未包含图片\n🎨🚫', textAlign: TextAlign.center,),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 182),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+            decoration: BoxDecoration(
+              color: panelColor,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: borderColor,
+                width: 1,
+              ),
+            ),
+            child: Text(
+              '该$fileType文件并未包含图片\n🎨🚫',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ),
       );
     }
   }

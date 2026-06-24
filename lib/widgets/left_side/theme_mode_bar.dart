@@ -14,7 +14,7 @@ class ThemeModeBar extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
         border: Border(
@@ -28,7 +28,7 @@ class ThemeModeBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('主题模式:', style: TextStyle(fontSize: 12)),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Row(
             children: [
               const SizedBox(width: 4),
@@ -92,7 +92,7 @@ class _ThemeModeButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
@@ -106,10 +106,10 @@ class _ThemeModeButton extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                size: 18,
+                size: 17,
                 color: isSelected ? accentColor : theme.colorScheme.onSurfaceVariant,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 3),
               Text(
                 label,
                 style: TextStyle(

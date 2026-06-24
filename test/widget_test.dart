@@ -17,6 +17,7 @@ void main() {
 
     expect(find.text('主题模式:'), findsOneWidget);
     expect(find.text('背景颜色:'), findsOneWidget);
+    expect(find.text('拖放动画文件到这里\n或点击右下角打开'), findsOneWidget);
     expect(find.byTooltip('从 URL 下载'), findsOneWidget);
     expect(find.byTooltip('打开动画文件'), findsOneWidget);
   });

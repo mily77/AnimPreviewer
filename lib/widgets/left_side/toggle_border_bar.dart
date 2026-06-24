@@ -14,7 +14,7 @@ class ToggleBorderBar extends StatelessWidget {
     final colors = context.appThemeColors;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 4, 0, 4),
+      padding: const EdgeInsets.fromLTRB(8, 2, 0, 2),
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
         border: Border(

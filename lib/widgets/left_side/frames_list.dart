@@ -13,12 +13,12 @@ class FramesList extends StatelessWidget {
 
     return GridView.builder(
       key: ValueKey(viewModel.currentFileName),
-      padding: const EdgeInsets.all(8),
+      padding: EdgeInsets.zero,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
-        childAspectRatio: 0.8, // 调整比例以容纳更多文字信息
+        childAspectRatio: 0.88, // 给缩略图主体更多纵向空间
       ),
       itemCount: viewModel.frames.length,
       itemBuilder: (context, index) {

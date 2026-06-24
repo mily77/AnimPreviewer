@@ -27,13 +27,13 @@ void main(List<String> args) async {
 
   // 设置窗口属性
   WindowOptions windowOptions = const WindowOptions(
-    size: Size(760, 600),
-    minimumSize: Size(380, 300),
+    size: Size(860, 620),
+    minimumSize: Size(520, 360),
     center: true,
     backgroundColor: Colors.transparent,
     skipTaskbar: false,
     titleBarStyle: TitleBarStyle.normal,
-    title: 'SVGA预览器',
+    title: 'AnimPreviewer',
   );
 
   // 配置窗口
@@ -88,7 +88,7 @@ class MyApp extends StatelessWidget {
       builder: (context, viewModel, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'SVGA预览器',
+          title: 'AnimPreviewer',
           theme: AppTheme.lightTheme(),
           darkTheme: AppTheme.darkTheme(),
           themeMode: _toThemeMode(viewModel.themeMode),
