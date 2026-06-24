@@ -9,7 +9,7 @@ import 'package:svgaplayer_flutter/player.dart';
 
 class RightSideScreen extends StatelessWidget {
   final SVGAAnimationController controller;
-  
+
   const RightSideScreen({super.key, required this.controller});
 
   @override
@@ -17,23 +17,37 @@ class RightSideScreen extends StatelessWidget {
     return Consumer<AnimationViewModel>(
       builder: (context, viewModel, child) {
         return Column(
-          children: _buildWidgets(viewModel.mode),
+          children: _buildWidgets(viewModel),
         );
       },
     );
   }
 
-  List<Widget> _buildWidgets(DisplayMode mode) {
-    List<Widget> list = [const SVGAInfoBar()]; // 文件信息栏
+  List<Widget> _buildWidgets(AnimationViewModel viewModel) {
+    final mode = viewModel.mode;
+    final list = <Widget>[];
+
+    if (viewModel.currentFileName != null) {
+      list.add(const SVGAInfoBar());
+    }
+
     if (mode == DisplayMode.showTop) {
-      list.add(Expanded(child: AnimationPreview(controller: controller),)); // 动画播放区域
+      list.add(Expanded(
+        child: AnimationPreview(controller: controller),
+      )); // 动画播放区域
     } else if (mode == DisplayMode.showBottom) {
       list.add(_buildDivider()); // 分隔线
-      list.add(const Expanded(child: FramePreview(),)); // 图片预览区域
+      list.add(const Expanded(
+        child: FramePreview(),
+      )); // 图片预览区域
     } else {
-      list.add(Expanded(child: AnimationPreview(controller: controller),)); // 动画播放区域
+      list.add(Expanded(
+        child: AnimationPreview(controller: controller),
+      )); // 动画播放区域
       list.add(_buildDivider()); // 分隔线
-      list.add(const Expanded(child: FramePreview(),)); // 图片预览区域
+      list.add(const Expanded(
+        child: FramePreview(),
+      )); // 图片预览区域
     }
     return list;
   }
@@ -91,7 +105,7 @@ class RightSideScreen extends StatelessWidget {
   //     ];
   //   }
   // }
-  // 
+  //
   // Widget _buildTop(double height) {
   //   return Positioned(
   //     top: 0,
@@ -101,7 +115,7 @@ class RightSideScreen extends StatelessWidget {
   //     child: AnimationPreview(controller: _controller),
   //   );
   // }
-  // 
+  //
   // Widget _buildLine(double top) {
   //   return Positioned(
   //     top: top,
@@ -111,7 +125,7 @@ class RightSideScreen extends StatelessWidget {
   //     child: Container(height: 1, color: Colors.grey.shade800,),
   //   );
   // }
-  // 
+  //
   // Widget _buildBottom(double height) {
   //   return Positioned(
   //     bottom: 0,

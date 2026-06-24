@@ -17,22 +17,27 @@ class FramePreview extends StatelessWidget {
         return Stack(
           children: [
             Container(
-              margin: const EdgeInsets.all(16),
+              margin: const EdgeInsets.all(6),
               child: Center(
                 child: viewModel.currentFrame == null
                     ? const Text('无预览内容')
                     : Container(
                         decoration: BoxDecoration(
                           color: viewModel.previewBackgroundColor,
-                          border: viewModel.showBorder ? Border.all(
-                            color: theme.dividerColor,
-                            width: 1,
-                          ) : null,
-                          borderRadius: viewModel.showBorder ? BorderRadius.circular(6) : null,
+                          border: viewModel.showBorder
+                              ? Border.all(
+                                  color: theme.dividerColor,
+                                  width: 1,
+                                )
+                              : null,
+                          borderRadius: viewModel.showBorder
+                              ? BorderRadius.circular(6)
+                              : null,
                         ),
                         child: Image.file(
                           viewModel.currentFrame!,
-                          key: ValueKey('preview_${viewModel.currentFileName}_${viewModel.currentFrameIndex}'),
+                          key: ValueKey(
+                              'preview_${viewModel.currentFileName}_${viewModel.currentFrameIndex}'),
                           fit: BoxFit.contain,
                           cacheWidth: null,
                           cacheHeight: null,
@@ -41,14 +46,20 @@ class FramePreview extends StatelessWidget {
                       ),
               ),
             ),
-            
             if (viewModel.currentFrame != null)
               Positioned(
-                left: 0,
-                top: 0,
+                left: 6,
+                top: 6,
                 child: Container(
                   padding: const EdgeInsets.all(8),
-                  color: colors.infoPanelBackground,
+                  decoration: BoxDecoration(
+                    color: _cardBackgroundColor(colors.infoPanelBackground),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: theme.dividerColor.withOpacity(0.55),
+                      width: 1,
+                    ),
+                  ),
                   child: viewModel.currentFrameInfo != null
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +91,9 @@ class FramePreview extends StatelessWidget {
                           ],
                         )
                       : FutureBuilder<ui.Image>(
-                          future: viewModel.currentFrame!.readAsBytes().then((bytes) => decodeImageFromList(bytes)),
+                          future: viewModel.currentFrame!
+                              .readAsBytes()
+                              .then((bytes) => decodeImageFromList(bytes)),
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               final image = snapshot.data!;
@@ -88,7 +101,8 @@ class FramePreview extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    viewModel.currentFrame!.uri.pathSegments.last,
+                                    viewModel
+                                        .currentFrame!.uri.pathSegments.last,
                                     style: TextStyle(
                                       color: theme.colorScheme.onSurface,
                                       fontSize: 14,
@@ -116,4 +130,8 @@ class FramePreview extends StatelessWidget {
       },
     );
   }
-} 
+
+  Color _cardBackgroundColor(Color baseColor) {
+    return baseColor.withOpacity((baseColor.opacity * 0.68).clamp(0.16, 0.68));
+  }
+}

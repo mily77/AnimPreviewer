@@ -8,35 +8,24 @@ class DisplayModeBar extends StatelessWidget {
   final AnimationViewModel viewModel;
   final SVGAAnimationController controller;
 
-  const DisplayModeBar({super.key, required this.viewModel, required this.controller});
+  const DisplayModeBar(
+      {super.key, required this.viewModel, required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        border: Border(
-          top: BorderSide(
-            color: theme.dividerColor,
-            width: 1,
-          ),
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('排版模式:', style: TextStyle(fontSize: 12)),
+          const Text('排版模式', style: TextStyle(fontSize: 12)),
           const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              const SizedBox(width: 8),
               _ModeButton(
-                mode: DisplayMode.showAll, 
-                isSelected: viewModel.mode == DisplayMode.showAll, 
+                mode: DisplayMode.showAll,
+                isSelected: viewModel.mode == DisplayMode.showAll,
                 onTap: () {
                   // DisplayMode oldMode = viewModel.mode;
                   viewModel.setMode(DisplayMode.showAll);
@@ -52,8 +41,8 @@ class DisplayModeBar extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               _ModeButton(
-                mode: DisplayMode.showTop, 
-                isSelected: viewModel.mode == DisplayMode.showTop, 
+                mode: DisplayMode.showTop,
+                isSelected: viewModel.mode == DisplayMode.showTop,
                 onTap: () {
                   // DisplayMode oldMode = viewModel.mode;
                   viewModel.setMode(DisplayMode.showTop);
@@ -69,11 +58,12 @@ class DisplayModeBar extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               _ModeButton(
-                mode: DisplayMode.showBottom, 
-                isSelected: viewModel.mode == DisplayMode.showBottom, 
+                mode: DisplayMode.showBottom,
+                isSelected: viewModel.mode == DisplayMode.showBottom,
                 onTap: () {
                   // print("fffffff videoItem: ${controller.videoItem != null}, isAnimating: ${controller.isAnimating}");
-                  if (controller.videoItem != null && controller.isAnimating == true) {
+                  if (controller.videoItem != null &&
+                      controller.isAnimating == true) {
                     controller.stop();
                   }
                   viewModel.setMode(DisplayMode.showBottom);
@@ -116,25 +106,20 @@ class _ModeButton extends StatelessWidget {
         icon = Icons.vertical_align_top;
         break;
     }
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 24,
-        height: 24,
+        width: 28,
+        height: 28,
         decoration: BoxDecoration(
-          border: Border.all(
-            color: color,  
-            width: 1.5,           
-          ),
+          color: isSelected
+              ? colors.accentForeground.withOpacity(0.14)
+              : theme.colorScheme.surfaceContainerHighest.withOpacity(0.45),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
-          child: Icon(
-            icon,         
-            color: color,
-            size: 14,
-          ),
+          child: Icon(icon, color: color, size: 15),
         ),
       ),
     );

@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:svga_previewer/theme/app_theme.dart';
 import 'package:svga_previewer/view_models/animation_view_model.dart';
 
@@ -10,26 +9,18 @@ class ToggleBorderBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final colors = context.appThemeColors;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(8, 2, 0, 2),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        border: Border(
-          top: BorderSide(
-            color: theme.dividerColor,
-            width: 1,
-          ),
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 7, 10, 7),
       child: Row(
         children: [
-          const Text('显示边框:', style: TextStyle(fontSize: 12)),
-          const Spacer(),
+          const Expanded(
+            child: Text('显示边框', style: TextStyle(fontSize: 12)),
+          ),
+          const SizedBox(width: 10),
           Transform.scale(
-            scale: 0.7,
+            scale: 0.66,
             child: CupertinoSwitch(
               value: viewModel.showBorder,
               onChanged: (value) async => await viewModel.setShowBorder(value),

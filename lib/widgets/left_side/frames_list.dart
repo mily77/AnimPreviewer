@@ -22,11 +22,14 @@ class FramesList extends StatelessWidget {
       ),
       itemCount: viewModel.frames.length,
       itemBuilder: (context, index) {
-        final frameInfo = viewModel.frameInfos.isNotEmpty ? viewModel.frameInfos[index] : null;
+        final frameInfo = viewModel.frameInfos.isNotEmpty
+            ? viewModel.frameInfos[index]
+            : null;
         return InkWell(
           onTap: () => viewModel.setCurrentFrameIndex(index),
           child: Container(
             decoration: BoxDecoration(
+              color: colors.secondaryInfoBackground.withOpacity(0.82),
               border: index == viewModel.currentFrameIndex
                   ? Border.all(
                       color: colors.accentForeground,
@@ -35,16 +38,22 @@ class FramesList extends StatelessWidget {
                   : null,
               borderRadius: BorderRadius.circular(4),
             ),
+            clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
                 Expanded(
-                  child: Image.file(
-                    viewModel.frames[index],
-                    key: ValueKey('frame_${viewModel.currentFileName}_$index'),
-                    fit: BoxFit.contain,
-                    cacheWidth: null,
-                    cacheHeight: null,
-                    gaplessPlayback: false,
+                  child: Container(
+                    width: double.infinity,
+                    color: colors.secondaryInfoBackground,
+                    child: Image.file(
+                      viewModel.frames[index],
+                      key:
+                          ValueKey('frame_${viewModel.currentFileName}_$index'),
+                      fit: BoxFit.contain,
+                      cacheWidth: null,
+                      cacheHeight: null,
+                      gaplessPlayback: false,
+                    ),
                   ),
                 ),
                 Container(

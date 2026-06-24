@@ -11,35 +11,28 @@ class SVGAControlBar extends StatelessWidget {
   final AnimationViewModel viewModel;
   final SVGAAnimationController controller;
 
-  const SVGAControlBar({super.key, required this.viewModel, required this.controller});
+  const SVGAControlBar(
+      {super.key, required this.viewModel, required this.controller});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = context.appThemeColors;
 
-    return Container(
-      padding: const EdgeInsets.only(top: 6, bottom: 0),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        border: Border(
-          top: BorderSide(
-            color: theme.dividerColor,
-            width: 1,
-          ),
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 9, 14, 8),
       child: SliderTheme(
         data: SliderTheme.of(context).copyWith(
           showValueIndicator: ShowValueIndicator.always,
           trackHeight: 2,
           overlayShape: const RoundSliderOverlayShape(overlayRadius: 10),
-          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6, pressedElevation: 4),
+          thumbShape: const RoundSliderThumbShape(
+              enabledThumbRadius: 6, pressedElevation: 4),
         ),
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 8, right: 8),
+              padding: const EdgeInsets.only(left: 0, right: 0),
               child: Row(
                 children: [
                   _buildCurrentFrameText(viewModel),
@@ -50,21 +43,27 @@ class SVGAControlBar extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
 
             Padding(
-              padding: const EdgeInsets.only(left: 4, right: 4),
+              padding: const EdgeInsets.only(left: 0, right: 0),
               child: _buildProgressSlider(viewModel),
             ),
 
             Padding(
-              padding: const EdgeInsets.only(left: 8, right: 2, top: 1),
+              padding: const EdgeInsets.only(top: 1),
               child: Row(
                 children: [
-                  const Text('允许绘制溢出:', style: TextStyle(fontSize: 12)),
-                  const Spacer(),
+                  const Expanded(
+                    child: Text(
+                      '绘制溢出',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ),
                   Transform.scale(
-                    scale: 0.7,
+                    scale: 0.66,
                     child: CupertinoSwitch(
                       value: viewModel.allowDrawingOverflow,
                       onChanged: viewModel.setAllowDrawingOverflow,
@@ -77,16 +76,18 @@ class SVGAControlBar extends StatelessWidget {
 
             // 播放速度控制
             Padding(
-              padding: const EdgeInsets.only(left: 8, right: 8, top: 4),
+              padding: const EdgeInsets.only(top: 4),
               child: Row(
                 children: [
-                  const Text('播放速度:', style: TextStyle(fontSize: 12)),
+                  const Text('播放速度', style: TextStyle(fontSize: 12)),
                   const SizedBox(width: 8),
-                  Text(_SpeedSelector.formatSpeedDisplay(viewModel.playbackSpeed), 
-                       style: TextStyle(
-                         fontSize: 11,
-                         color: theme.colorScheme.onSurfaceVariant,
-                       )),
+                  Text(
+                      _SpeedSelector.formatSpeedDisplay(
+                          viewModel.playbackSpeed),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      )),
                   const Spacer(),
                   _SpeedSelector(
                     viewModel: viewModel,
@@ -117,7 +118,8 @@ class SVGAControlBar extends StatelessWidget {
     } else if (viewModel.animationType == AnimationType.lottie) {
       return Consumer<AnimationViewModel>(
         builder: (context, vm, child) {
-          final currentFrame = (vm.lottieCurrentValue * vm.lottieTotalFrames).round() + 1;
+          final currentFrame =
+              (vm.lottieCurrentValue * vm.lottieTotalFrames).round() + 1;
           return Text(
             '当前帧: $currentFrame / ${vm.lottieTotalFrames}',
             style: const TextStyle(fontSize: 12),
@@ -167,9 +169,11 @@ class SVGAControlBar extends StatelessWidget {
             activeColor: accentColor,
             min: 0,
             max: vm.lottieTotalFrames.toDouble(),
-            value: (vm.lottieCurrentValue * vm.lottieTotalFrames).clamp(0.0, vm.lottieTotalFrames.toDouble()),
+            value: (vm.lottieCurrentValue * vm.lottieTotalFrames)
+                .clamp(0.0, vm.lottieTotalFrames.toDouble()),
             onChanged: (v) {
-              final normalizedValue = (v / vm.lottieTotalFrames).clamp(0.0, 1.0);
+              final normalizedValue =
+                  (v / vm.lottieTotalFrames).clamp(0.0, 1.0);
               vm.seekLottie(normalizedValue);
             },
           );
@@ -180,22 +184,22 @@ class SVGAControlBar extends StatelessWidget {
   }
 }
 
-/// 
+///
 /// 📒 笔记：一般情况下，你要「在 StatefulWidget 里用 AnimatedBuilder」，而不是用 AnimatedBuilder 去包整个 StatefulWidget。
-/// 
+///
 /// ✅ AnimatedBuilder 放在 StatefulWidget 的 build 里
 /// - State 里管理 AnimationController 的生命周期
 /// - AnimatedBuilder 只负责在 build 里局部刷新，child 部分是缓存，不会重新构建
-/// 
+///
 /// ⚡️ 如果在 StatefulWidget 外面包 AnimatedBuilder
 /// - AnimatedBuilder 每一帧重建整个 MyStatefulWidget
 /// - MyStatefulWidget 的所有状态、生命周期都可能重新走一遍（看写法）
 /// - 完全丢失了 StatefulWidget 的意义
-/// 
+///
 /// 📌 结论
 /// ✅ 你应该在 StatefulWidget 里用 AnimatedBuilder 来「驱动部分 UI 的变化」
 /// ✅ 而不是用 AnimatedBuilder 去包一个 StatefulWidget 让它整体每帧刷新
-/// 
+///
 class _PlayButton extends StatefulWidget {
   final SVGAAnimationController controller;
 
@@ -211,34 +215,35 @@ class __PlayButtonState extends State<_PlayButton> {
     final accentColor = context.appThemeColors.accentForeground;
 
     return Container(
-      width: 28,
-      height: 20,
+      width: 32,
+      height: 24,
       decoration: BoxDecoration(
         color: accentColor,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: AnimatedBuilder(
-        animation: widget.controller,
-        builder: (context, child) {
-          return IconButton(
-            onPressed: () {
-              if (widget.controller.isAnimating == true) {
-                widget.controller.stop();
-              } else {
-                if (widget.controller.isCompleted == true) {
-                  widget.controller.reset();
+          animation: widget.controller,
+          builder: (context, child) {
+            return IconButton(
+              onPressed: () {
+                if (widget.controller.isAnimating == true) {
+                  widget.controller.stop();
+                } else {
+                  if (widget.controller.isCompleted == true) {
+                    widget.controller.reset();
+                  }
+                  widget.controller.repeat();
                 }
-                widget.controller.repeat();
-              }
-              setState(() {});
-            },
-            icon: Icon(widget.controller.isAnimating ? Icons.pause : Icons.play_arrow),
-            iconSize: 17,
-            padding: EdgeInsets.zero,
-            color: Colors.white,
-          );
-        }
-      ),
+                setState(() {});
+              },
+              icon: Icon(widget.controller.isAnimating
+                  ? Icons.pause
+                  : Icons.play_arrow),
+              iconSize: 18,
+              padding: EdgeInsets.zero,
+              color: Colors.white,
+            );
+          }),
     );
   }
 }
@@ -255,18 +260,18 @@ class _LottiePlayButton extends StatelessWidget {
       builder: (context, vm, child) {
         final accentColor = context.appThemeColors.accentForeground;
         return Container(
-          width: 28,
-          height: 20,
+          width: 32,
+          height: 24,
           decoration: BoxDecoration(
             color: accentColor,
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: IconButton(
             onPressed: () {
               vm.toggleLottiePlay();
             },
             icon: Icon(vm.lottieIsPlaying ? Icons.pause : Icons.play_arrow),
-            iconSize: 17,
+            iconSize: 18,
             padding: EdgeInsets.zero,
             color: Colors.white,
           ),
@@ -297,7 +302,7 @@ class _SpeedSelector extends StatelessWidget {
     if (speed == 1.25) return '1.25x';
     if (speed == 1.5) return '1.5x';
     if (speed == 2.0) return '2.0x';
-    
+
     // 对于其他值，使用合理的格式化
     if (speed == speed.toInt()) {
       return '${speed.toInt()}.0x';
@@ -336,7 +341,8 @@ class _SpeedSelector extends StatelessWidget {
           children: [
             Icon(Icons.speed, size: 14, color: colors.accentForeground),
             const SizedBox(width: 4),
-            Icon(Icons.arrow_drop_down, size: 16, color: colors.accentForeground),
+            Icon(Icons.arrow_drop_down,
+                size: 16, color: colors.accentForeground),
           ],
         ),
       ),

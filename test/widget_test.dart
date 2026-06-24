@@ -5,7 +5,8 @@ import 'package:svga_previewer/main.dart';
 import 'package:svga_previewer/view_models/animation_view_model.dart';
 
 void main() {
-  testWidgets('app renders theme controls and actions', (WidgetTester tester) async {
+  testWidgets('app renders theme controls and actions',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (_) => AnimationViewModel(),
@@ -15,9 +16,9 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('主题模式:'), findsOneWidget);
-    expect(find.text('背景颜色:'), findsOneWidget);
-    expect(find.text('拖放动画文件到这里\n或点击右下角打开'), findsOneWidget);
+    expect(find.text('主题模式'), findsOneWidget);
+    expect(find.text('背景颜色'), findsOneWidget);
+    expect(find.text('拖放动画文件到这里\n或点击右下角打开文件'), findsOneWidget);
     expect(find.byTooltip('从 URL 下载'), findsOneWidget);
     expect(find.byTooltip('打开动画文件'), findsOneWidget);
   });

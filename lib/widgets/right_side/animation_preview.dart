@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:svga_previewer/models/animation_type.dart';
-import 'package:svga_previewer/theme/app_theme.dart';
 import 'package:svga_previewer/view_models/animation_view_model.dart';
 import 'package:svga_previewer/widgets/right_side/svga_preview.dart';
 import 'package:svga_previewer/widgets/right_side/lottie_preview.dart';
@@ -9,7 +8,7 @@ import 'package:svgaplayer_flutter/player.dart';
 
 class AnimationPreview extends StatelessWidget {
   final SVGAAnimationController controller;
-  
+
   const AnimationPreview({super.key, required this.controller});
 
   @override
@@ -18,28 +17,31 @@ class AnimationPreview extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       alignment: Alignment.center,
       child: Consumer<AnimationViewModel>(
-      builder: (context, viewModel, child) {
-        if (viewModel.animationType == null) {
-          return _buildPlaceholder(context, viewModel);
-        }
+        builder: (context, viewModel, child) {
+          if (viewModel.animationType == null) {
+            return _buildPlaceholder(context, viewModel);
+          }
           return LayoutBuilder(
             builder: (context, constraints) {
               double width = constraints.maxWidth;
               double height = constraints.maxHeight;
               Size preferredSize;
-              
+
               // 如果宽度或高度为 0，使用默认尺寸
               if (viewModel.frameWidth <= 0 || viewModel.frameHeight <= 0) {
                 preferredSize = Size(width - 2, height - 2);
-                print('使用默认尺寸: $preferredSize (因为 frameWidth=${viewModel.frameWidth}, frameHeight=${viewModel.frameHeight})');
+                print(
+                    '使用默认尺寸: $preferredSize (因为 frameWidth=${viewModel.frameWidth}, frameHeight=${viewModel.frameHeight})');
               } else if (viewModel.frameWidth > viewModel.frameHeight) {
                 double ratio = viewModel.frameHeight / viewModel.frameWidth;
                 height = width * ratio;
-                preferredSize = Size((width - 2), (width - 2) * ratio); // Border宽度是属于内边距，所以减2
+                preferredSize = Size(
+                    (width - 2), (width - 2) * ratio); // Border宽度是属于内边距，所以减2
               } else {
                 double ratio = viewModel.frameWidth / viewModel.frameHeight;
                 width = height * ratio;
-                preferredSize = Size((height - 2) * ratio, (height - 2)); // Border宽度是属于内边距，所以减2
+                preferredSize = Size(
+                    (height - 2) * ratio, (height - 2)); // Border宽度是属于内边距，所以减2
               }
               return SizedBox(
                 width: width,
@@ -58,7 +60,7 @@ class AnimationPreview extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildPlaceholder(BuildContext context, AnimationViewModel viewModel) {
     final theme = Theme.of(context);
 
@@ -66,7 +68,7 @@ class AnimationPreview extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 260),
         child: Text(
-          '拖放动画文件到这里\n或点击右下角打开',
+          '拖放动画文件到这里\n或点击右下角打开文件',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
@@ -78,14 +80,17 @@ class AnimationPreview extends StatelessWidget {
     );
   }
 
-  Widget _buildAnimationPreview(AnimationViewModel viewModel, Size preferredSize) {
-    if (viewModel.animationType == AnimationType.svga && viewModel.svgaFile != null) {
+  Widget _buildAnimationPreview(
+      AnimationViewModel viewModel, Size preferredSize) {
+    if (viewModel.animationType == AnimationType.svga &&
+        viewModel.svgaFile != null) {
       return SVGAPreview(
         controller: controller,
         file: viewModel.svgaFile!,
         preferredSize: preferredSize,
       );
-    } else if (viewModel.animationType == AnimationType.lottie && viewModel.lottieFile != null) {
+    } else if (viewModel.animationType == AnimationType.lottie &&
+        viewModel.lottieFile != null) {
       return LottiePreview(
         file: viewModel.lottieFile!,
         preferredSize: preferredSize,

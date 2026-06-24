@@ -11,33 +11,21 @@ class ThemeModeBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appThemeColors;
-    final theme = Theme.of(context);
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        border: Border(
-          top: BorderSide(
-            color: theme.dividerColor,
-            width: 1,
-          ),
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('主题模式:', style: TextStyle(fontSize: 12)),
+          const Text('主题模式', style: TextStyle(fontSize: 12)),
           const SizedBox(height: 6),
           Row(
             children: [
-              const SizedBox(width: 4),
               _ThemeModeButton(
                 label: '系统',
                 icon: Icons.brightness_auto,
                 isSelected: viewModel.themeMode == AppThemeMode.system,
                 accentColor: colors.accentForeground,
-                borderColor: theme.dividerColor,
                 onTap: () => viewModel.setThemeMode(AppThemeMode.system),
               ),
               const SizedBox(width: 8),
@@ -46,7 +34,6 @@ class ThemeModeBar extends StatelessWidget {
                 icon: Icons.light_mode_outlined,
                 isSelected: viewModel.themeMode == AppThemeMode.light,
                 accentColor: colors.accentForeground,
-                borderColor: theme.dividerColor,
                 onTap: () => viewModel.setThemeMode(AppThemeMode.light),
               ),
               const SizedBox(width: 8),
@@ -55,7 +42,6 @@ class ThemeModeBar extends StatelessWidget {
                 icon: Icons.dark_mode_outlined,
                 isSelected: viewModel.themeMode == AppThemeMode.dark,
                 accentColor: colors.accentForeground,
-                borderColor: theme.dividerColor,
                 onTap: () => viewModel.setThemeMode(AppThemeMode.dark),
               ),
             ],
@@ -71,7 +57,6 @@ class _ThemeModeButton extends StatelessWidget {
   final IconData icon;
   final bool isSelected;
   final Color accentColor;
-  final Color borderColor;
   final VoidCallback onTap;
 
   const _ThemeModeButton({
@@ -79,7 +64,6 @@ class _ThemeModeButton extends StatelessWidget {
     required this.icon,
     required this.isSelected,
     required this.accentColor,
-    required this.borderColor,
     required this.onTap,
   });
 
@@ -89,17 +73,15 @@ class _ThemeModeButton extends StatelessWidget {
 
     return Expanded(
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(10),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isSelected ? accentColor : borderColor,
-              width: isSelected ? 1.5 : 1,
-            ),
-            color: isSelected ? accentColor.withOpacity(0.08) : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            color: isSelected
+                ? accentColor.withOpacity(0.14)
+                : theme.colorScheme.surfaceContainerHighest.withOpacity(0.45),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -107,14 +89,18 @@ class _ThemeModeButton extends StatelessWidget {
               Icon(
                 icon,
                 size: 17,
-                color: isSelected ? accentColor : theme.colorScheme.onSurfaceVariant,
+                color: isSelected
+                    ? accentColor
+                    : theme.colorScheme.onSurfaceVariant,
               ),
               const SizedBox(height: 3),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  color: isSelected ? accentColor : theme.colorScheme.onSurfaceVariant,
+                  color: isSelected
+                      ? accentColor
+                      : theme.colorScheme.onSurfaceVariant,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),

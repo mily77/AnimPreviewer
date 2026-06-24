@@ -123,17 +123,17 @@ class AnimationViewModel extends ChangeNotifier {
     _animationFile = null;
     _animationType = null;
     _currentFileName = null;
-      _lottieImagesDir = null;
-      _metadata = null;
-      _playbackSpeed = 1.0;
+    _lottieImagesDir = null;
+    _metadata = null;
+    _playbackSpeed = 1.0;
 
-      // 清理 Lottie 控制回调
-      _lottiePlayCallback = null;
-      _lottiePauseCallback = null;
-      _lottieSeekCallback = null;
-      _lottieIsPlaying = false;
-      _lottieCurrentValue = 0.0;
-      _lottieTotalFrames = 0;
+    // 清理 Lottie 控制回调
+    _lottiePlayCallback = null;
+    _lottiePauseCallback = null;
+    _lottieSeekCallback = null;
+    _lottieIsPlaying = false;
+    _lottieCurrentValue = 0.0;
+    _lottieTotalFrames = 0;
 
     // 取消下载
     _downloader.cancel();
@@ -238,6 +238,12 @@ class AnimationViewModel extends ChangeNotifier {
     await UserPreferencesManager.saveBackgroundColor(color);
   }
 
+  /// 仅更新预览背景，不立即持久化，用于颜色选择过程中的实时预览。
+  void setPreviewBackgroundColorTemporarily(Color color) {
+    _previewBackgroundColor = color;
+    notifyListeners();
+  }
+
   /// 设置边框显示
   Future<void> setShowBorder(bool value) async {
     _showBorder = value;
@@ -290,7 +296,8 @@ class AnimationViewModel extends ChangeNotifier {
   }
 
   /// 更新 Lottie 播放状态
-  void updateLottiePlayState(bool isPlaying, double currentValue, int totalFrames) {
+  void updateLottiePlayState(
+      bool isPlaying, double currentValue, int totalFrames) {
     _lottieIsPlaying = isPlaying;
     _lottieCurrentValue = currentValue;
     _lottieTotalFrames = totalFrames;

@@ -9,18 +9,31 @@ class SVGAInfoBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = context.appThemeColors;
+    return Consumer<AnimationViewModel>(
+      builder: (context, viewModel, child) {
+        if (viewModel.currentFileName == null) {
+          return const SizedBox.shrink();
+        }
 
-    return Container(
-      padding: const EdgeInsets.all(8),
-      color: colors.infoPanelBackground,
-      child: Consumer<AnimationViewModel>(
-        builder: (context, viewModel, child) {
-          if (viewModel.currentFileName == null) return const Row();
-          return Row(
+        final theme = Theme.of(context);
+        final colors = context.appThemeColors;
+
+        return Container(
+          margin: const EdgeInsets.fromLTRB(6, 6, 6, 4),
+          padding: const EdgeInsets.fromLTRB(14, 11, 14, 11),
+          decoration: BoxDecoration(
+            color: _cardBackgroundColor(colors.infoPanelBackground),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: theme.dividerColor.withOpacity(0.55),
+              width: 1,
+            ),
+          ),
+          child: Row(
             children: [
-              Icon(viewModel.animationType == AnimationType.lottie ? Icons.animation : Icons.movie_outlined),
+              Icon(viewModel.animationType == AnimationType.lottie
+                  ? Icons.animation
+                  : Icons.movie_outlined),
               const SizedBox(width: 8),
               Expanded(
                 child: Column(
@@ -30,19 +43,26 @@ class SVGAInfoBar extends StatelessWidget {
                       children: [
                         Text(
                           viewModel.currentFileName!,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold,),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: viewModel.animationType == AnimationType.lottie 
-                                ? colors.tagLottie
-                                : colors.tagSvga,
+                            color:
+                                viewModel.animationType == AnimationType.lottie
+                                    ? colors.tagLottie
+                                    : colors.tagSvga,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            viewModel.animationType == AnimationType.lottie ? 'Lottie' : 'SVGA',
+                            viewModel.animationType == AnimationType.lottie
+                                ? 'Lottie'
+                                : 'SVGA',
                             style: TextStyle(
                               fontSize: 10,
                               color: colors.tagForeground,
@@ -71,14 +91,26 @@ class SVGAInfoBar extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                _totalFramesText(viewModel),
-                style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest
+                      .withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  _totalFramesText(viewModel),
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontSize: 11,
+                  ),
+                ),
               ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -87,11 +119,16 @@ class SVGAInfoBar extends StatelessWidget {
   }
 
   String _fileSizeText(AnimationViewModel viewModel) {
-    final fileType = viewModel.animationType == AnimationType.lottie ? 'Lottie文件' : 'SVGA文件';
+    final fileType =
+        viewModel.animationType == AnimationType.lottie ? 'Lottie文件' : 'SVGA文件';
     return '$fileType: ${viewModel.svgaFileSizeText}  •  临时文件: ${viewModel.totalFileSizeMB.toStringAsFixed(1)}MB  •  内存: ${viewModel.memoryUsage.toStringAsFixed(1)}MB';
   }
 
   String _totalFramesText(AnimationViewModel viewModel) {
     return '总帧数: ${viewModel.totalFrames}';
+  }
+
+  Color _cardBackgroundColor(Color baseColor) {
+    return baseColor.withOpacity((baseColor.opacity * 0.72).clamp(0.18, 0.72));
   }
 }
