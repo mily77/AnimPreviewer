@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:svga_previewer/theme/app_theme.dart';
 import 'package:svga_previewer/view_models/animation_view_model.dart';
 
 class BackgroundColorBar extends StatelessWidget {
@@ -8,13 +9,16 @@ class BackgroundColorBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = context.appThemeColors;
+
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,  // 使用 Scaffold 的默认背景色
+        color: theme.scaffoldBackgroundColor,
         border: Border(
           top: BorderSide(
-            color: Colors.grey.shade800,
+            color: theme.dividerColor,
             width: 1,
           ),
         ),
@@ -51,6 +55,7 @@ class BackgroundColorBar extends StatelessWidget {
                 color: Colors.deepPurpleAccent.shade100,
                 isSelected: viewModel.previewBackgroundColor == Colors.deepPurpleAccent.shade100,
                 onTap: () async => await viewModel.setPreviewBackgroundColor(Colors.deepPurpleAccent.shade100),
+                selectedColor: colors.accentForeground,
               ),
             ],
           ),
@@ -64,15 +69,19 @@ class _ColorButton extends StatelessWidget {
   final Color color;
   final bool isSelected;
   final VoidCallback onTap;
+  final Color? selectedColor;
 
   const _ColorButton({
     required this.color,
     required this.isSelected,
     required this.onTap,
+    this.selectedColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -82,7 +91,9 @@ class _ColorButton extends StatelessWidget {
           color: color,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? Colors.deepPurpleAccent.shade200 : Colors.grey.shade800,
+            color: isSelected
+                ? (selectedColor ?? theme.colorScheme.primary)
+                : theme.dividerColor,
             width: isSelected ? 3 : 2,
           ),
         ),

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:svga_previewer/models/animation_type.dart';
+import 'package:svga_previewer/theme/app_theme.dart';
 import 'package:svga_previewer/view_models/animation_view_model.dart';
 import 'package:svgaplayer_flutter/svgaplayer_flutter.dart';
 
@@ -14,13 +15,16 @@ class SVGAControlBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = context.appThemeColors;
+
     return Container(
       padding: const EdgeInsets.only(top: 10, bottom: 2),
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,  // 使用 Scaffold 的默认背景色
+        color: theme.scaffoldBackgroundColor,
         border: Border(
           top: BorderSide(
-            color: Colors.grey.shade800,
+            color: theme.dividerColor,
             width: 1,
           ),
         ),
@@ -64,7 +68,7 @@ class SVGAControlBar extends StatelessWidget {
                     child: CupertinoSwitch(
                       value: viewModel.allowDrawingOverflow,
                       onChanged: viewModel.setAllowDrawingOverflow,
-                      activeColor: Colors.deepPurpleAccent.shade200,
+                      activeColor: colors.accentForeground,
                     ),
                   ),
                 ],
@@ -79,9 +83,16 @@ class SVGAControlBar extends StatelessWidget {
                   const Text('播放速度:', style: TextStyle(fontSize: 12)),
                   const SizedBox(width: 8),
                   Text(_SpeedSelector.formatSpeedDisplay(viewModel.playbackSpeed), 
-                       style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                       style: TextStyle(
+                         fontSize: 11,
+                         color: theme.colorScheme.onSurfaceVariant,
+                       )),
                   const Spacer(),
-                  _SpeedSelector(viewModel: viewModel, controller: controller),
+                  _SpeedSelector(
+                    viewModel: viewModel,
+                    controller: controller,
+                    accentColor: colors.accentForeground,
+                  ),
                 ],
               ),
             )
@@ -133,8 +144,9 @@ class SVGAControlBar extends StatelessWidget {
       return AnimatedBuilder(
         animation: controller,
         builder: (context, child) {
+          final accentColor = context.appThemeColors.accentForeground;
           return Slider(
-            activeColor: Colors.deepPurpleAccent.shade200,
+            activeColor: accentColor,
             min: 0,
             max: controller.frames.toDouble(),
             value: controller.currentFrame.toDouble(),
@@ -150,8 +162,9 @@ class SVGAControlBar extends StatelessWidget {
     } else if (viewModel.animationType == AnimationType.lottie) {
       return Consumer<AnimationViewModel>(
         builder: (context, vm, child) {
+          final accentColor = context.appThemeColors.accentForeground;
           return Slider(
-            activeColor: Colors.deepPurpleAccent.shade200,
+            activeColor: accentColor,
             min: 0,
             max: vm.lottieTotalFrames.toDouble(),
             value: (vm.lottieCurrentValue * vm.lottieTotalFrames).clamp(0.0, vm.lottieTotalFrames.toDouble()),
@@ -195,11 +208,13 @@ class _PlayButton extends StatefulWidget {
 class __PlayButtonState extends State<_PlayButton> {
   @override
   Widget build(BuildContext context) {
+    final accentColor = context.appThemeColors.accentForeground;
+
     return Container(
       width: 28,
       height: 20,
       decoration: BoxDecoration(
-        color: Colors.deepPurpleAccent,
+        color: accentColor,
         borderRadius: BorderRadius.circular(4),
       ),
       child: AnimatedBuilder(
@@ -238,11 +253,12 @@ class _LottiePlayButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AnimationViewModel>(
       builder: (context, vm, child) {
+        final accentColor = context.appThemeColors.accentForeground;
         return Container(
           width: 28,
           height: 20,
           decoration: BoxDecoration(
-            color: Colors.deepPurpleAccent,
+            color: accentColor,
             borderRadius: BorderRadius.circular(4),
           ),
           child: IconButton(
@@ -264,8 +280,13 @@ class _LottiePlayButton extends StatelessWidget {
 class _SpeedSelector extends StatelessWidget {
   final AnimationViewModel viewModel;
   final SVGAAnimationController controller;
+  final Color accentColor;
 
-  const _SpeedSelector({required this.viewModel, required this.controller});
+  const _SpeedSelector({
+    required this.viewModel,
+    required this.controller,
+    required this.accentColor,
+  });
 
   /// 格式化播放速度显示文本，确保与菜单选项一致
   static String formatSpeedDisplay(double speed) {
@@ -287,6 +308,8 @@ class _SpeedSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appThemeColors;
+
     return PopupMenuButton<double>(
       onSelected: (speed) {
         viewModel.setPlaybackSpeed(speed);
@@ -304,16 +327,16 @@ class _SpeedSelector extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.deepPurpleAccent.withOpacity(0.1),
+          color: colors.accentSoft,
           borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: Colors.deepPurpleAccent.shade200, width: 1),
+          border: Border.all(color: colors.accentForeground, width: 1),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.speed, size: 14, color: Colors.deepPurpleAccent.shade200),
+            Icon(Icons.speed, size: 14, color: colors.accentForeground),
             const SizedBox(width: 4),
-            Icon(Icons.arrow_drop_down, size: 16, color: Colors.deepPurpleAccent.shade200),
+            Icon(Icons.arrow_drop_down, size: 16, color: colors.accentForeground),
           ],
         ),
       ),
@@ -326,7 +349,7 @@ class _SpeedSelector extends StatelessWidget {
       child: Row(
         children: [
           if (viewModel.playbackSpeed == speed)
-            Icon(Icons.check, size: 16, color: Colors.deepPurpleAccent.shade200)
+            Icon(Icons.check, size: 16, color: accentColor)
           else
             const SizedBox(width: 16),
           const SizedBox(width: 8),

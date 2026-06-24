@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:svga_previewer/theme/app_theme.dart';
 import 'package:svga_previewer/view_models/animation_view_model.dart';
 
 class UrlDownloadBar extends StatefulWidget {
@@ -21,16 +22,19 @@ class _UrlDownloadBarState extends State<UrlDownloadBar> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = context.appThemeColors;
+
     return AnimatedBuilder(
       animation: widget.viewModel,
       builder: (context, child) {
         return Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
+            color: theme.scaffoldBackgroundColor,
             border: Border(
               bottom: BorderSide(
-                color: Colors.grey.shade800,
+                color: theme.dividerColor,
                 width: 1,
               ),
             ),
@@ -79,7 +83,10 @@ class _UrlDownloadBarState extends State<UrlDownloadBar> {
                 const SizedBox(height: 6),
                 Text(
                   widget.viewModel.downloadError!,
-                  style: const TextStyle(color: Colors.redAccent, fontSize: 12),
+                  style: TextStyle(
+                    color: colors.errorForeground,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ],
@@ -102,13 +109,16 @@ class _UrlDownloadBarState extends State<UrlDownloadBar> {
         LinearProgressIndicator(
           value: progress > 0 ? progress.clamp(0, 1) : null,
           minHeight: 6,
-          backgroundColor: Colors.grey.shade900,
-          color: Colors.deepPurpleAccent.shade200,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: context.appThemeColors.accentForeground,
         ),
         const SizedBox(height: 4),
         Text(
           isDownloading ? '下载中... $percentText%' : '下载完成',
-          style: const TextStyle(fontSize: 11, color: Colors.grey),
+          style: TextStyle(
+            fontSize: 11,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );
@@ -120,4 +130,3 @@ class _UrlDownloadBarState extends State<UrlDownloadBar> {
     await widget.viewModel.downloadFromUrl(url);
   }
 }
-

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:svga_previewer/theme/app_theme.dart';
 import 'package:svga_previewer/view_models/animation_view_model.dart';
 import 'package:svga_previewer/widgets/left_side/left_side_screen.dart';
 import 'package:svga_previewer/widgets/right_side/right_side_screen.dart';
@@ -30,6 +31,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Stack(
       children: [
         Row(
@@ -40,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               decoration: BoxDecoration(
                 border: Border(
                   right: BorderSide(
-                    color: Colors.grey.shade800,
+                    color: theme.dividerColor,
                     width: 1,
                   ),
                 ),
@@ -66,13 +69,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Consumer<AnimationViewModel>(
       builder: (context, viewModel, child) {
         if (!viewModel.isDragging) return const SizedBox();
+        final theme = Theme.of(context);
+        final colors = context.appThemeColors;
         return Container(
-          color: Colors.black.withOpacity(0.7),
-          child: const Center(
+          color: colors.overlayScrim,
+          child: Center(
             child: Text(
               '释放以打开 SVGA 文件',
               style: TextStyle(
-                color: Colors.white,
+                color: theme.colorScheme.onSurface,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),

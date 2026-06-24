@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:svga_previewer/theme/app_theme.dart';
 import 'package:svga_previewer/view_models/animation_view_model.dart';
 
 class UrlDownloadDialog extends StatefulWidget {
@@ -59,6 +60,9 @@ class _UrlDownloadDialogState extends State<UrlDownloadDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = context.appThemeColors;
+
     return Dialog(
       child: StatefulBuilder(
         builder: (context, setDialogState) {
@@ -79,9 +83,9 @@ class _UrlDownloadDialogState extends State<UrlDownloadDialog> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.grey.shade900,
+                color: colors.secondaryInfoBackground,
                 border: Border(
-                  bottom: BorderSide(color: Colors.grey.shade800, width: 1),
+                  bottom: BorderSide(color: theme.dividerColor, width: 1),
                 ),
               ),
               child: Row(
@@ -144,18 +148,25 @@ class _UrlDownloadDialogState extends State<UrlDownloadDialog> {
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Colors.red.shade900.withOpacity(0.3),
+                                color: colors.errorBackground,
                                 borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: Colors.red.shade700, width: 1),
+                                border: Border.all(color: colors.errorBorder, width: 1),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.error_outline, color: Colors.redAccent, size: 20),
+                                  Icon(
+                                    Icons.error_outline,
+                                    color: colors.errorForeground,
+                                    size: 20,
+                                  ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       widget.viewModel.downloadError!,
-                                      style: const TextStyle(color: Colors.redAccent, fontSize: 12),
+                                      style: TextStyle(
+                                        color: colors.errorForeground,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -181,6 +192,8 @@ class _UrlDownloadDialogState extends State<UrlDownloadDialog> {
                           builder: (context, child) {
                             final isDownloading = widget.viewModel.isDownloading;
                             final canDownload = _isButtonEnabled && !isDownloading;
+                            final indicatorColor =
+                                theme.colorScheme.onPrimary;
                             
                             return FilledButton(
                               onPressed: canDownload ? _startDownload : null,
@@ -191,12 +204,14 @@ class _UrlDownloadDialogState extends State<UrlDownloadDialog> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   if (isDownloading) ...[
-                                    const SizedBox(
+                                    SizedBox(
                                       width: 16,
                                       height: 16,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          indicatorColor,
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
@@ -246,7 +261,7 @@ class _UrlDownloadDialogState extends State<UrlDownloadDialog> {
                         width: 20,
                         height: 20,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade700,
+                          color: colors.dragHandleBackground,
                           borderRadius: const BorderRadius.only(
                             bottomRight: Radius.circular(4),
                           ),
@@ -254,7 +269,7 @@ class _UrlDownloadDialogState extends State<UrlDownloadDialog> {
                         child: Icon(
                           Icons.drag_handle,
                           size: 12,
-                          color: Colors.grey.shade400,
+                          color: colors.dragHandleForeground,
                         ),
                       ),
                     ),
@@ -281,16 +296,18 @@ class _UrlDownloadDialogState extends State<UrlDownloadDialog> {
         LinearProgressIndicator(
           value: progress > 0 ? progress.clamp(0, 1) : null,
           minHeight: 6,
-          backgroundColor: Colors.grey.shade900,
-          color: Colors.deepPurpleAccent.shade200,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: context.appThemeColors.accentForeground,
         ),
         const SizedBox(height: 4),
         Text(
           isDownloading ? '下载中... $percentText%' : '下载完成',
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
+          style: TextStyle(
+            fontSize: 12,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );
   }
 }
-

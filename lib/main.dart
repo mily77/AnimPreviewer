@@ -4,6 +4,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
+import 'package:svga_previewer/models/app_theme_mode.dart';
+import 'package:svga_previewer/theme/app_theme.dart';
 import 'package:svga_previewer/widgets/home_screen.dart';
 import 'package:window_manager/window_manager.dart';
 import 'single_instance.dart';
@@ -82,15 +84,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false, // 是否显示右上角的debug图标
-      title: 'SVGA预览器',
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-        brightness: Brightness.dark, // 使用深色主题
-      ),
-      home: const MyHomePage(),
+    return Consumer<AnimationViewModel>(
+      builder: (context, viewModel, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'SVGA预览器',
+          theme: AppTheme.lightTheme(),
+          darkTheme: AppTheme.darkTheme(),
+          themeMode: _toThemeMode(viewModel.themeMode),
+          home: const MyHomePage(),
+        );
+      },
     );
+  }
+
+  ThemeMode _toThemeMode(AppThemeMode themeMode) {
+    switch (themeMode) {
+      case AppThemeMode.light:
+        return ThemeMode.light;
+      case AppThemeMode.dark:
+        return ThemeMode.dark;
+      case AppThemeMode.system:
+        return ThemeMode.system;
+    }
   }
 }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:svga_previewer/models/display_mode.dart';
+import 'package:svga_previewer/theme/app_theme.dart';
 import 'package:svga_previewer/view_models/animation_view_model.dart';
 import 'package:svgaplayer_flutter/player.dart';
 
@@ -11,13 +12,15 @@ class DisplayModeBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,  // 使用 Scaffold 的默认背景色
+        color: theme.scaffoldBackgroundColor,
         border: Border(
           top: BorderSide(
-            color: Colors.grey.shade800,
+            color: theme.dividerColor,
             width: 1,
           ),
         ),
@@ -97,7 +100,9 @@ class _ModeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color color = isSelected ? Colors.deepPurpleAccent.shade200 : Colors.grey.shade800;
+    final theme = Theme.of(context);
+    final colors = context.appThemeColors;
+    final color = isSelected ? colors.accentForeground : theme.dividerColor;
 
     IconData? icon;
     switch (mode) {

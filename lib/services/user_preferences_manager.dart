@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:svga_previewer/models/app_theme_mode.dart';
 import 'package:svga_previewer/models/display_mode.dart';
 
 /// 用户偏好设置管理器
@@ -8,6 +9,7 @@ class UserPreferencesManager {
   static const String _modeKey = 'user_mode';
   static const String _showBorderKey = 'show_border';
   static const String _backgroundColorKey = 'background_color';
+  static const String _themeModeKey = 'theme_mode';
 
   /// 加载用户偏好设置
   /// 
@@ -35,10 +37,20 @@ class UserPreferencesManager {
       backgroundColor = Color(colorValue);
     }
 
+    AppThemeMode themeMode = AppThemeMode.system;
+    final themeModeString = prefs.getString(_themeModeKey);
+    if (themeModeString != null) {
+      themeMode = AppThemeMode.values.firstWhere(
+        (e) => e.name == themeModeString,
+        orElse: () => AppThemeMode.system,
+      );
+    }
+
     return PreferencesData(
       mode: mode,
       showBorder: showBorder,
       backgroundColor: backgroundColor,
+      themeMode: themeMode,
     );
   }
 
@@ -65,6 +77,12 @@ class UserPreferencesManager {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_backgroundColorKey, color.value);
   }
+
+  /// 保存主题模式设置
+  static Future<void> saveThemeMode(AppThemeMode themeMode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_themeModeKey, themeMode.name);
+  }
 }
 
 /// 用户偏好设置数据类
@@ -79,10 +97,13 @@ class PreferencesData {
   /// 背景颜色
   final Color backgroundColor;
 
+  /// 主题模式
+  final AppThemeMode themeMode;
+
   PreferencesData({
     required this.mode,
     required this.showBorder,
     required this.backgroundColor,
+    required this.themeMode,
   });
 }
-

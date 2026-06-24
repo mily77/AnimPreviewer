@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:svga_previewer/models/animation_type.dart';
+import 'package:svga_previewer/theme/app_theme.dart';
 import 'package:svga_previewer/view_models/animation_view_model.dart';
 
 class SVGAInfoBar extends StatelessWidget {
@@ -8,9 +9,12 @@ class SVGAInfoBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = context.appThemeColors;
+
     return Container(
       padding: const EdgeInsets.all(8),
-      color: Colors.black45,
+      color: colors.infoPanelBackground,
       child: Consumer<AnimationViewModel>(
         builder: (context, viewModel, child) {
           if (viewModel.currentFileName == null) return const Row();
@@ -33,13 +37,16 @@ class SVGAInfoBar extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: viewModel.animationType == AnimationType.lottie 
-                                ? Colors.blue.shade900 
-                                : Colors.purple.shade900,
+                                ? colors.tagLottie
+                                : colors.tagSvga,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             viewModel.animationType == AnimationType.lottie ? 'Lottie' : 'SVGA',
-                            style: const TextStyle(fontSize: 10, color: Colors.white),
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: colors.tagForeground,
+                            ),
                           ),
                         ),
                       ],
@@ -47,12 +54,18 @@ class SVGAInfoBar extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       _infoText(viewModel),
-                      style: const TextStyle(color: Colors.grey, fontSize: 12,),
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontSize: 12,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       _fileSizeText(viewModel),
-                      style: const TextStyle(color: Colors.orange, fontSize: 11,),
+                      style: TextStyle(
+                        color: colors.warningText,
+                        fontSize: 11,
+                      ),
                     ),
                   ],
                 ),
@@ -60,7 +73,7 @@ class SVGAInfoBar extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 _totalFramesText(viewModel),
-                style: const TextStyle(color: Colors.grey),
+                style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
               ),
             ],
           );

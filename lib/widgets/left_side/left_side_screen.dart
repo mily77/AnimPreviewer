@@ -7,6 +7,7 @@ import 'package:svga_previewer/widgets/left_side/background_color_bar.dart';
 import 'package:svga_previewer/widgets/left_side/display_mode_bar.dart';
 import 'package:svga_previewer/widgets/left_side/frames_list.dart';
 import 'package:svga_previewer/widgets/left_side/svga_control_bar.dart';
+import 'package:svga_previewer/widgets/left_side/theme_mode_bar.dart';
 import 'package:svga_previewer/widgets/left_side/toggle_border_bar.dart';
 import 'package:svgaplayer_flutter/player.dart';
 import 'package:flutter/cupertino.dart';
@@ -46,6 +47,8 @@ class LeftSideScreen extends StatelessWidget {
     list.add(ToggleBorderBar(viewModel: viewModel));
     // 背景色选项栏
     list.add(BackgroundColorBar(viewModel: viewModel));
+    // 主题模式
+    list.add(ThemeModeBar(viewModel: viewModel));
     // 排版选项栏
     list.add(DisplayModeBar(viewModel: viewModel, controller: controller));
     // 底部间距

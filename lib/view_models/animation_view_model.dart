@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:archive/archive.dart';
+import 'package:svga_previewer/models/app_theme_mode.dart';
 import 'package:svga_previewer/models/animation_metadata.dart';
 import 'package:svga_previewer/models/animation_type.dart';
 import 'package:svga_previewer/models/display_mode.dart';
@@ -41,6 +42,7 @@ class AnimationViewModel extends ChangeNotifier {
   Color _previewBackgroundColor = Colors.transparent;
   bool _showBorder = true;
   DisplayMode _mode = DisplayMode.showAll;
+  AppThemeMode _themeMode = AppThemeMode.system;
   bool _allowDrawingOverflow = true;
   double _playbackSpeed = 1.0;
 
@@ -85,6 +87,7 @@ class AnimationViewModel extends ChangeNotifier {
   Color get previewBackgroundColor => _previewBackgroundColor;
   bool get showBorder => _showBorder;
   DisplayMode get mode => _mode;
+  AppThemeMode get themeMode => _themeMode;
   bool get allowDrawingOverflow => _allowDrawingOverflow;
   double get playbackSpeed => _playbackSpeed;
   bool get isDownloading => _isDownloading;
@@ -102,6 +105,7 @@ class AnimationViewModel extends ChangeNotifier {
     _mode = prefs.mode;
     _showBorder = prefs.showBorder;
     _previewBackgroundColor = prefs.backgroundColor;
+    _themeMode = prefs.themeMode;
     notifyListeners();
   }
 
@@ -248,6 +252,13 @@ class AnimationViewModel extends ChangeNotifier {
     await UserPreferencesManager.saveMode(mode);
   }
 
+  /// 设置应用主题模式
+  Future<void> setThemeMode(AppThemeMode themeMode) async {
+    _themeMode = themeMode;
+    notifyListeners();
+    await UserPreferencesManager.saveThemeMode(themeMode);
+  }
+
   /// 设置是否允许绘制溢出
   void setAllowDrawingOverflow(bool value) {
     _allowDrawingOverflow = value;
@@ -378,4 +389,3 @@ class AnimationViewModel extends ChangeNotifier {
     super.dispose();
   }
 }
-

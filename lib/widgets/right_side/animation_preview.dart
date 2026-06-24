@@ -19,7 +19,7 @@ class AnimationPreview extends StatelessWidget {
       child: Consumer<AnimationViewModel>(
       builder: (context, viewModel, child) {
         if (viewModel.animationType == null) {
-          return _buildPlaceholder(viewModel);
+          return _buildPlaceholder(context, viewModel);
         }
           return LayoutBuilder(
             builder: (context, constraints) {
@@ -58,12 +58,12 @@ class AnimationPreview extends StatelessWidget {
     );
   }
   
-  Widget _buildPlaceholder(AnimationViewModel viewModel) {
+  Widget _buildPlaceholder(BuildContext context, AnimationViewModel viewModel) {
     return Container(
       decoration: BoxDecoration(
         color: viewModel.previewBackgroundColor,
         border: Border.all(
-          color: Colors.grey.shade800,
+          color: Theme.of(context).dividerColor,
           width: 1,
         ),
         borderRadius: BorderRadius.circular(6),
@@ -93,14 +93,18 @@ class AnimationPreview extends StatelessWidget {
   }
 
   Widget _buildBorder(AnimationViewModel viewModel) {
-    return Container(
-      decoration: BoxDecoration(
-        border: viewModel.showBorder ? Border.all(
-          color: Colors.grey.shade800,
-          width: 1,
-        ) : null,
-        borderRadius: BorderRadius.circular(6),
+    return Builder(
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          border: viewModel.showBorder
+              ? Border.all(
+                  color: Theme.of(context).dividerColor,
+                  width: 1,
+                )
+              : null,
+          borderRadius: BorderRadius.circular(6),
+        ),
       ),
     );
   }
-} 
+}

@@ -28,14 +28,23 @@ class RightSideScreen extends StatelessWidget {
     if (mode == DisplayMode.showTop) {
       list.add(Expanded(child: AnimationPreview(controller: controller),)); // 动画播放区域
     } else if (mode == DisplayMode.showBottom) {
-      list.add(Container(height: 1, color: Colors.grey.shade800,)); // 分隔线
+      list.add(_buildDivider()); // 分隔线
       list.add(const Expanded(child: FramePreview(),)); // 图片预览区域
     } else {
       list.add(Expanded(child: AnimationPreview(controller: controller),)); // 动画播放区域
-      list.add(Container(height: 1, color: Colors.grey.shade800,)); // 分隔线
+      list.add(_buildDivider()); // 分隔线
       list.add(const Expanded(child: FramePreview(),)); // 图片预览区域
     }
     return list;
+  }
+
+  Widget _buildDivider() {
+    return Builder(
+      builder: (context) => Container(
+        height: 1,
+        color: Theme.of(context).dividerColor,
+      ),
+    );
   }
 
   // Column+Stack方式:

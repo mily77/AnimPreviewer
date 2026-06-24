@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:svga_previewer/theme/app_theme.dart';
 import 'package:svga_previewer/view_models/animation_view_model.dart';
 
 class FramesList extends StatelessWidget {
@@ -8,6 +9,8 @@ class FramesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appThemeColors;
+
     return GridView.builder(
       key: ValueKey(viewModel.currentFileName),
       padding: const EdgeInsets.all(8),
@@ -26,7 +29,7 @@ class FramesList extends StatelessWidget {
             decoration: BoxDecoration(
               border: index == viewModel.currentFrameIndex
                   ? Border.all(
-                      color: Colors.deepPurpleAccent.shade200,
+                      color: colors.accentForeground,
                       width: 2,
                     )
                   : null,
@@ -46,7 +49,7 @@ class FramesList extends StatelessWidget {
                 ),
                 Container(
                   padding: const EdgeInsets.all(4),
-                  color: Colors.black45,
+                  color: colors.secondaryInfoBackground,
                   child: Column(
                     children: [
                       Text(
@@ -59,7 +62,10 @@ class FramesList extends StatelessWidget {
                         Text(
                           frameInfo.fileSizeText,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 10, color: Colors.orange),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: colors.warningText,
+                          ),
                         ),
                       ],
                     ],
