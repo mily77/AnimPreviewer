@@ -121,7 +121,7 @@ class SVGAInfoBar extends StatelessWidget {
   String _fileSizeText(AnimationViewModel viewModel) {
     final fileType =
         viewModel.animationType == AnimationType.lottie ? 'Lottie文件' : 'SVGA文件';
-    return '$fileType: ${viewModel.svgaFileSizeText}  •  临时文件: ${viewModel.totalFileSizeMB.toStringAsFixed(1)}MB  •  内存: ${viewModel.memoryUsage.toStringAsFixed(1)}MB';
+    return '$fileType: ${viewModel.svgaFileSizeText}  •  临时文件: ${viewModel.totalFileSizeMB.toStringAsFixed(1)}MB  •  图片解码内存估算: ${viewModel.memoryUsage.toStringAsFixed(1)}MB';
   }
 
   String _totalFramesText(AnimationViewModel viewModel) {

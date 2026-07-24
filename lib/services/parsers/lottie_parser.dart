@@ -10,6 +10,7 @@ import 'package:svga_previewer/services/parsers/animation_parser.dart';
 import 'package:svga_previewer/services/parsers/animation_parse_result.dart';
 import 'package:svga_previewer/services/temp_file_manager.dart';
 import 'package:svga_previewer/utils/archive_extractor.dart';
+import 'package:svga_previewer/utils/archive_resource_index.dart';
 import 'package:svga_previewer/utils/file_type_detector.dart';
 import 'package:flutter/material.dart';
 
@@ -45,66 +46,50 @@ class LottieParser implements AnimationParser {
 
       // 读取 Lottie JSON 内容（同时提取图片资源）
       print('开始读取 Lottie 文件内容...');
-      final readResult = await _readLottieContent(filePath, extractImages: true);
+      final readResult =
+          await _readLottieContent(filePath, extractImages: true);
       final jsonString = readResult.jsonContent;
       final lottieImagesDir = readResult.imagesDir;
+      final archiveIndex = readResult.archiveIndex;
       print('JSON 内容长度: ${jsonString.length} 字符');
 
-      // 如果是 ZIP 格式（.lottie 或 .zip），需要将 JSON 保存到临时文件
-      final ext = path.extension(filePath).toLowerCase();
+      // 先规范化 JSON，修复部分导出器生成的 effect 参数结构
+      print('开始解析 JSON 数据...');
+      Map<String, dynamic> lottieData;
+      try {
+        lottieData = json.decode(jsonString) as Map<String, dynamic>;
+        print('JSON 解析成功，包含 ${lottieData.length} 个键');
+      } catch (e) {
+        print('JSON 解析失败: $e');
+        print(
+            'JSON 内容前 500 字符: ${jsonString.substring(0, jsonString.length > 500 ? 500 : jsonString.length)}');
+        rethrow;
+      }
+
+      final normalizedEffectCount = _normalizeEffectValueObjects(lottieData);
+      final normalizedAssetCount =
+          _normalizeImageAssetPaths(lottieData, lottieImagesDir, archiveIndex);
+      final jsonWasNormalized =
+          normalizedEffectCount > 0 || normalizedAssetCount > 0;
+      final processedJsonString =
+          jsonWasNormalized ? json.encode(lottieData) : jsonString;
+
+      if (normalizedEffectCount > 0) {
+        print('已修复 $normalizedEffectCount 个 effect 参数值结构');
+      }
+      if (normalizedAssetCount > 0) {
+        print('已修复 $normalizedAssetCount 个图片资源路径');
+      }
+
+      // 如果是 ZIP/GZIP 格式，或者 JSON 被修复过，需要将 JSON 保存到临时文件
+      final isCompressedJson = readResult.requiresTempFile;
       String? targetImagesDirPath; // 保存目标图片目录路径，供后续使用
       File? lottieJsonFile;
 
-      if (ext == '.lottie' || ext == '.zip') {
-        // 解析 JSON 以检查和修复图片路径
-        Map<String, dynamic> jsonData = json.decode(jsonString);
-
-        // 检查并修复 assets 中的图片路径
-        // 只有在确实提取到了 images 文件夹时才修复路径
-        String processedJsonString = jsonString;
-        if (jsonData.containsKey('assets') && lottieImagesDir != null) {
-          final assets = jsonData['assets'] as List<dynamic>?;
-          if (assets != null) {
-            print('检查 assets 中的图片路径，共 ${assets.length} 个资源...');
-            bool hasImages = false;
-            for (var asset in assets) {
-              if (asset is Map<String, dynamic>) {
-                final p = asset['p'] as String?; // 图片文件名
-                final u = asset['u'] as String?; // 图片路径（目录）
-
-                // 检查是否是图片资源（有 p 字段且是图片格式）
-                if (p != null &&
-                    (p.toLowerCase().endsWith('.png') ||
-                        p.toLowerCase().endsWith('.jpg') ||
-                        p.toLowerCase().endsWith('.jpeg'))) {
-                  hasImages = true;
-                  // 确保路径是 images/（相对于 JSON 文件）
-                  String newPath = 'images/';
-
-                  // 如果原路径不是 images/，更新它
-                  if (u != newPath) {
-                    asset['u'] = newPath;
-                    print('更新图片路径: ${u ?? "(空)"} -> $newPath (文件: $p)');
-                  } else {
-                    print('图片路径已正确: $newPath$p');
-                  }
-                }
-              }
-            }
-            if (hasImages) {
-              // 重新编码 JSON
-              processedJsonString = json.encode(jsonData);
-              print('已修复 JSON 中的图片路径');
-            } else {
-              print('未找到图片资源引用');
-            }
-          }
-        } else if (jsonData.containsKey('assets')) {
-          print('JSON 包含 assets，但未提取到 images 文件夹，保持原始路径');
-        }
-
+      if (isCompressedJson || jsonWasNormalized) {
         // 创建临时 JSON 文件
-        lottieJsonFile = await TempFileManager.createTempJsonFile(processedJsonString);
+        lottieJsonFile =
+            await TempFileManager.createTempJsonFile(processedJsonString);
         print('已将 Lottie JSON 保存到临时文件: ${lottieJsonFile.path}');
 
         // 如果提取了图片资源，需要先复制图片，然后再设置 lottieFile
@@ -153,19 +138,6 @@ class LottieParser implements AnimationParser {
         print('使用原始 JSON 文件: ${originalFile.path}');
       }
 
-      // 解析 JSON
-      print('开始解析 JSON 数据...');
-      Map<String, dynamic> lottieData;
-      try {
-        lottieData = json.decode(jsonString) as Map<String, dynamic>;
-        print('JSON 解析成功，包含 ${lottieData.length} 个键');
-      } catch (e) {
-        print('JSON 解析失败: $e');
-        print(
-            'JSON 内容前 500 字符: ${jsonString.substring(0, jsonString.length > 500 ? 500 : jsonString.length)}');
-        rethrow;
-      }
-
       // 解析 Lottie 信息
       print('开始解析 Lottie 动画信息...');
       print('JSON 键列表: ${lottieData.keys.toList()}');
@@ -187,7 +159,7 @@ class LottieParser implements AnimationParser {
       final duration = totalFrames > 0 && fps > 0 ? totalFrames / fps : 0.0;
 
       print(
-          'Lottie信息: ${frameWidth}x${frameHeight}, FPS: $fps, 总帧数: $totalFrames, 时长: ${duration}秒');
+          'Lottie信息: ${frameWidth}x$frameHeight, FPS: $fps, 总帧数: $totalFrames, 时长: $duration秒');
 
       // 验证关键信息
       if (frameWidth == 0 || frameHeight == 0) {
@@ -216,23 +188,22 @@ class LottieParser implements AnimationParser {
       if (imagesDirToUse != null && await Directory(imagesDirToUse).exists()) {
         print('开始加载 images 文件夹中的图片...');
         print('使用图片目录: $imagesDirToUse');
-        final imageFiles = await Directory(imagesDirToUse).list().toList();
+        final imageFiles = await Directory(
+          imagesDirToUse,
+        ).list(recursive: true).toList();
 
         // 过滤出图片文件并按文件名排序
-        final imageFileList = imageFiles
-            .whereType<File>()
-            .where((file) {
-              final ext = path.extension(file.path).toLowerCase();
-              return ext == '.png' ||
-                  ext == '.jpg' ||
-                  ext == '.jpeg' ||
-                  ext == '.webp';
-            })
-            .toList();
+        final imageFileList = imageFiles.whereType<File>().where((file) {
+          final ext = path.extension(file.path).toLowerCase();
+          return ext == '.png' ||
+              ext == '.jpg' ||
+              ext == '.jpeg' ||
+              ext == '.webp';
+        }).toList();
 
         // 按文件名排序
-        imageFileList
-            .sort((a, b) => path.basename(a.path).compareTo(path.basename(b.path)));
+        imageFileList.sort(
+            (a, b) => path.basename(a.path).compareTo(path.basename(b.path)));
 
         print('找到 ${imageFileList.length} 个图片文件');
 
@@ -312,26 +283,137 @@ class LottieParser implements AnimationParser {
     }
   }
 
+  int _normalizeImageAssetPaths(
+    Map<String, dynamic> lottieData,
+    String? lottieImagesDir,
+    ArchiveResourceIndex? archiveIndex,
+  ) {
+    if (!lottieData.containsKey('assets')) {
+      return 0;
+    }
+    if (lottieImagesDir == null) {
+      print('JSON 包含 assets，但未提取到 images 文件夹，保持原始路径');
+      return 0;
+    }
+
+    final assets = lottieData['assets'] as List<dynamic>?;
+    if (assets == null) {
+      return 0;
+    }
+
+    print('检查 assets 中的图片路径，共 ${assets.length} 个资源...');
+    var normalizedCount = 0;
+    for (final asset in assets) {
+      if (asset is! Map<String, dynamic>) continue;
+
+      final p = asset['p'] as String?;
+      final u = asset['u'] as String?;
+      if (p == null) continue;
+
+      final lowerP = p.toLowerCase();
+      final isImage = lowerP.endsWith('.png') ||
+          lowerP.endsWith('.jpg') ||
+          lowerP.endsWith('.jpeg');
+      if (!isImage) continue;
+
+      var newPath = 'images/';
+      final imageEntry = archiveIndex?.findImage(u, p);
+      if (imageEntry != null && !p.contains('/') && !p.contains('\\')) {
+        final relativePath = imageEntry.relativePath.replaceAll('\\', '/');
+        final separatorIndex = relativePath.lastIndexOf('/');
+        if (separatorIndex >= 0) {
+          newPath = 'images/${relativePath.substring(0, separatorIndex + 1)}';
+        }
+      }
+      if (u != newPath) {
+        asset['u'] = newPath;
+        normalizedCount++;
+        print('更新图片路径: ${u ?? "(空)"} -> $newPath (文件: $p)');
+      } else {
+        print('图片路径已正确: $newPath$p');
+      }
+    }
+
+    if (normalizedCount == 0) {
+      print('未发现需要修复的图片资源路径');
+    }
+    return normalizedCount;
+  }
+
+  int _normalizeEffectValueObjects(Map<String, dynamic> lottieData) {
+    final layers = lottieData['layers'] as List<dynamic>?;
+    if (layers == null) {
+      return 0;
+    }
+
+    var normalizedCount = 0;
+    for (final layer in layers) {
+      if (layer is! Map<String, dynamic>) continue;
+      final effects = layer['ef'] as List<dynamic>?;
+      if (effects == null) continue;
+
+      for (final effect in effects) {
+        normalizedCount += _normalizeEffectEntry(effect);
+      }
+    }
+    return normalizedCount;
+  }
+
+  int _normalizeEffectEntry(dynamic entry) {
+    if (entry is! Map<String, dynamic>) {
+      return 0;
+    }
+
+    var normalizedCount = 0;
+    final childEffects = entry['ef'] as List<dynamic>?;
+    if (childEffects != null) {
+      for (final child in childEffects) {
+        normalizedCount += _normalizeEffectEntry(child);
+      }
+    }
+
+    if (!entry.containsKey('v')) {
+      return normalizedCount;
+    }
+
+    final value = entry['v'];
+    if (value is num || value is bool || value is String) {
+      entry['v'] = {
+        'a': 0,
+        'k': value,
+      };
+      normalizedCount++;
+      print(
+          '修复 effect 值结构: ${entry['nm'] ?? '(未命名)'} -> ${json.encode(entry['v'])}');
+    }
+
+    return normalizedCount;
+  }
+
   /// 读取 Lottie 文件内容
-  /// 
+  ///
   /// [filePath] 文件路径
   /// [extractImages] 是否提取图片资源
   /// 返回读取结果，包含 JSON 内容和图片目录路径
   Future<_LottieReadResult> _readLottieContent(String filePath,
       {bool extractImages = true}) async {
-    final ext = path.extension(filePath).toLowerCase();
     final file = File(filePath);
+    final signature = await FileTypeDetector.detectSignature(filePath);
 
-    if (ext == '.gz' || filePath.toLowerCase().endsWith('.json.gz')) {
+    if (signature == AnimationFileFormat.lottieGzip) {
       // 处理 .json.gz 文件
       final bytes = await file.readAsBytes();
       final gzipDecoder = GZipDecoder();
       final decompressed = gzipDecoder.decodeBytes(bytes);
+      if (!FileTypeDetector.isLottieJsonBytes(decompressed)) {
+        throw Exception('GZIP 文件不是有效的 Lottie JSON');
+      }
       return _LottieReadResult(
-        jsonContent: utf8.decode(decompressed),
+        jsonContent: FileTypeDetector.decodeJsonText(decompressed),
         imagesDir: null,
+        requiresTempFile: true,
       );
-    } else if (ext == '.lottie' || ext == '.zip') {
+    } else if (signature == AnimationFileFormat.lottieZip) {
       // 处理 .lottie 或 .zip 文件（ZIP 格式）
       print('开始处理 ZIP 格式文件: $filePath');
       final bytes = await file.readAsBytes();
@@ -346,23 +428,19 @@ class LottieParser implements AnimationParser {
         throw Exception('无法解压 ZIP 文件: $e');
       }
 
-      // 列出所有文件
-      print('ZIP 文件内容:');
-      for (final file in archive) {
-        print('  - ${file.name} (${file.isFile ? "文件" : "目录"})');
-      }
-
-      // 检测是否为 Lottie 格式
-      if (ext == '.zip' && !FileTypeDetector.isLottieZip(archive)) {
-        throw Exception('ZIP 文件不是有效的 Lottie 格式（未找到 data.json）');
-      }
+      final archiveIndex = ArchiveResourceIndex.build(archive);
+      print('归档索引建立完成，单次扫描 ${archiveIndex.inspectedEntryCount} 个条目');
 
       // 提取图片资源（如果存在）
       String? lottieImagesDir;
       if (extractImages) {
-        final lottieTempDir = await TempFileManager.getLottieExtractedDirectory();
-        lottieImagesDir =
-            await ArchiveExtractor.extractLottieImages(archive, lottieTempDir.path);
+        final lottieTempDir =
+            await TempFileManager.getLottieExtractedDirectory();
+        lottieImagesDir = await ArchiveExtractor.extractLottieImages(
+          archive,
+          lottieTempDir.path,
+          index: archiveIndex,
+        );
         if (lottieImagesDir != null) {
           print('已提取图片资源到: $lottieImagesDir');
         } else {
@@ -370,79 +448,36 @@ class LottieParser implements AnimationParser {
         }
       }
 
-      // 优先查找 data.json 文件（标准 Lottie ZIP 格式，支持嵌套目录）
-      String? jsonContent;
-      for (final file in archive) {
-        final fileName = file.name;
-        final fileNameLower = fileName.toLowerCase();
-        // 跳过 macOS 系统文件
-        if (fileNameLower.contains('__macosx') ||
-            fileNameLower.contains('/._')) {
-          continue;
-        }
-        // 支持根目录和嵌套目录中的 data.json
-        if (fileName == 'data.json' || fileNameLower.endsWith('/data.json')) {
-          jsonContent = utf8.decode(file.content as List<int>);
-          print('找到 data.json 文件: ${file.name}，大小: ${jsonContent.length} 字符');
-          break;
-        }
+      final animationJson = archiveIndex.animationJson;
+      if (animationJson == null) {
+        throw Exception('ZIP 文件不是有效的 Lottie 格式（未找到动画 JSON）');
       }
-
-      // 如果找不到 data.json，查找 animations/animation.json（.lottie 新格式，支持嵌套目录）
-      if (jsonContent == null) {
-        print('未找到 data.json，查找 animations/animation.json...');
-        for (final file in archive) {
-          final fileName = file.name;
-          final fileNameLower = fileName.toLowerCase();
-          if (fileNameLower.contains('__macosx') ||
-              fileNameLower.contains('/._')) {
-            continue;
-          }
-          // 支持嵌套目录，如 "folder/animations/animation.json"
-          if (fileNameLower.endsWith('/animations/animation.json') ||
-              (fileNameLower.contains('/animations/') &&
-                  fileNameLower.endsWith('.json'))) {
-            jsonContent = utf8.decode(file.content as List<int>);
-            print(
-                '找到动画 JSON 文件: ${file.name}，大小: ${jsonContent.length} 字符');
-            break;
-          }
-        }
+      if (animationJson.content is! List<int> ||
+          !FileTypeDetector.isLottieJsonBytes(
+              animationJson.content as List<int>)) {
+        throw Exception('ZIP 文件不是有效的 Lottie 格式（动画 JSON 校验失败）');
       }
-
-      // 如果还是找不到，查找其他 JSON 文件（向后兼容，但排除 manifest.json 和 macOS 系统文件）
-      if (jsonContent == null) {
-        print('未找到标准动画文件，查找其他 JSON 文件（排除 manifest.json）...');
-        for (final file in archive) {
-          final fileName = file.name;
-          final fileNameLower = fileName.toLowerCase();
-          // 跳过 macOS 系统文件和 manifest.json
-          if (fileNameLower.contains('__macosx') ||
-              fileNameLower.contains('/._') ||
-              fileNameLower.contains('manifest')) {
-            continue;
-          }
-          if (fileNameLower.endsWith('.json') && file.isFile) {
-            jsonContent = utf8.decode(file.content as List<int>);
-            print('找到 JSON 文件: ${file.name}，大小: ${jsonContent.length} 字符');
-            break;
-          }
-        }
-      }
-
-      if (jsonContent == null) {
-        throw Exception('在 ZIP 文件中未找到 JSON 文件');
-      }
+      final jsonContent = FileTypeDetector.decodeJsonText(
+        animationJson.content as List<int>,
+      );
+      print('索引定位动画 JSON: ${animationJson.name}，大小: ${jsonContent.length} 字符');
 
       return _LottieReadResult(
         jsonContent: jsonContent,
         imagesDir: lottieImagesDir,
+        archiveIndex: archiveIndex,
+        requiresTempFile: true,
       );
     } else {
       // 直接读取 .json 文件
+      final bytes = await file.readAsBytes();
+      if (!FileTypeDetector.isLottieJsonBytes(bytes)) {
+        throw Exception('文件不是有效的 Lottie JSON');
+      }
       return _LottieReadResult(
-        jsonContent: await file.readAsString(),
+        jsonContent: FileTypeDetector.decodeJsonText(bytes),
         imagesDir: null,
+        requiresTempFile: false,
       );
     }
   }
@@ -452,10 +487,13 @@ class LottieParser implements AnimationParser {
 class _LottieReadResult {
   final String jsonContent;
   final String? imagesDir;
+  final ArchiveResourceIndex? archiveIndex;
+  final bool requiresTempFile;
 
   _LottieReadResult({
     required this.jsonContent,
+    required this.requiresTempFile,
     this.imagesDir,
+    this.archiveIndex,
   });
 }
-

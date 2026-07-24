@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
-import 'package:archive/archive.dart';
 import 'package:svga_previewer/models/app_theme_mode.dart';
 import 'package:svga_previewer/models/animation_metadata.dart';
 import 'package:svga_previewer/models/animation_type.dart';
@@ -19,10 +18,10 @@ import 'package:svga_previewer/utils/file_type_detector.dart';
 /// 负责管理动画预览器的状态，协调各个服务模块完成文件解析、下载等功能
 class AnimationViewModel extends ChangeNotifier {
   // 解析器实例
-  final List<AnimationParser> _parsers = [
-    SVGAParser(),
-    LottieParser(),
-  ];
+  final Map<AnimationType, AnimationParser> _parsers = {
+    AnimationType.svga: SVGAParser(),
+    AnimationType.lottie: LottieParser(),
+  };
 
   // 文件下载器
   final FileDownloader _downloader = FileDownloader();
@@ -164,44 +163,17 @@ class AnimationViewModel extends ChangeNotifier {
     }
   }
 
-  /// 通用的动画文件处理方法，根据文件扩展名自动识别类型
+  /// 通用动画文件处理方法，根据文件签名和内容结构识别类型。
   Future<void> processAnimationFile(String filePath,
       {bool clearBeforeProcess = true}) async {
     if (clearBeforeProcess) {
       await clearState();
     }
 
-    // 查找合适的解析器
-    AnimationParser? parser;
-    for (final p in _parsers) {
-      if (p.canParse(filePath)) {
-        parser = p;
-        break;
-      }
-    }
-
-    // 如果是 ZIP 文件，需要先检测是否为 Lottie 格式
-    if (parser == null && path.extension(filePath).toLowerCase() == '.zip') {
-      try {
-        final file = File(filePath);
-        final bytes = await file.readAsBytes();
-        final archive = ZipDecoder().decodeBytes(bytes);
-        if (FileTypeDetector.isLottieZip(archive)) {
-          parser = LottieParser();
-        } else {
-          throw Exception('ZIP 文件不是有效的 Lottie 格式（未找到 data.json）');
-        }
-      } catch (e) {
-        if (e.toString().contains('不是有效的 Lottie 格式')) {
-          rethrow;
-        }
-        throw Exception('无法读取 ZIP 文件: $e');
-      }
-    }
-
+    final detectedFormat = await FileTypeDetector.detect(filePath);
+    final parser = _parsers[detectedFormat.animationType];
     if (parser == null) {
-      final ext = path.extension(filePath).toLowerCase();
-      throw Exception('不支持的文件格式: $ext');
+      throw Exception('没有可处理 ${detectedFormat.name} 的解析器');
     }
 
     // 解析文件
@@ -352,21 +324,14 @@ class AnimationViewModel extends ChangeNotifier {
       _isDownloading = false;
       notifyListeners();
 
-      // 根据文件类型决定是否解析
-      if (FileTypeDetector.isSupportedAnimationFile(downloadedPath)) {
-        try {
-          print('开始解析下载的文件...');
-          await processAnimationFile(downloadedPath, clearBeforeProcess: false);
-          _downloadError = null;
-          print('文件解析成功');
-        } catch (e) {
-          print('解析失败: $e');
-          _downloadError = '解析失败: $e';
-          notifyListeners();
-        }
-      } else {
-        print('下载的文件不是支持的动画格式');
+      try {
+        print('开始解析下载的文件...');
+        await processAnimationFile(downloadedPath, clearBeforeProcess: false);
         _downloadError = null;
+        print('文件解析成功');
+      } catch (e) {
+        print('解析失败: $e');
+        _downloadError = '解析失败: $e';
         notifyListeners();
       }
     } catch (e) {
